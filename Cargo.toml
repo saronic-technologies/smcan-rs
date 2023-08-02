@@ -3,6 +3,10 @@ name = "smcan"
 version = "0.1.0"
 edition = "2021"
 license = "MPL-2.0"
+description = "A no_std rust crate to generate and parse CAN Frames for the SM-CAN protocol."
+homepage = "https://github.com/saronic-technologies/smcan-rs"
+repository = "https://github.com/saronic-technologies/smcan-rs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
