@@ -1,5 +1,5 @@
 [package]
-name = "smcan-rs"
+name = "smcan"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 embedded-can = "0.4.1"
+
+[dev-dependencies]
+anyhow = "1.0.72"
+socketcan = "2.0.0"
