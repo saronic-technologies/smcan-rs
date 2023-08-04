@@ -3,17 +3,17 @@ use embedded_can::{ExtendedId, Frame, Id};
 
 #[derive(Debug)]
 pub struct Telemetry {
-    motor_speed: f32,
-    motor_current: f32,
-    battery_voltage: f32,
-    battery_current: f32,
-    commanded_value: f32,
-    mosfet_temp: f32,
+    pub motor_speed: f32,
+    pub motor_current: f32,
+    pub battery_voltage: f32,
+    pub battery_current: f32,
+    pub commanded_value: f32,
+    pub mosfet_temp: f32,
 }
 
 #[derive(Debug)]
 pub struct MotorCmd {
-    cmd_value: u16,
+    pub cmd_value: u16,
 }
 
 pub enum Message {
