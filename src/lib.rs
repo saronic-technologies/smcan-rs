@@ -1,6 +1,11 @@
 #![no_std]
 use embedded_can::{ExtendedId, Frame, Id};
 
+use binrw::{binrw, BinRead, BinWrite};
+use binrw::io::Cursor;
+
+#[binrw]
+#[brw(big)]
 #[derive(Debug)]
 pub struct Telemetry {
     pub motor_speed: f32,
@@ -11,6 +16,8 @@ pub struct Telemetry {
     pub mosfet_temp: f32,
 }
 
+#[binrw]
+#[brw(big)]
 #[derive(Debug)]
 pub struct MotorCmd {
     pub cmd_value: u16,
@@ -53,14 +60,10 @@ impl Message {
         match self {
             Self::Telemetry(t) => {
                 let id = ExtendedId::new(0x1feeab01).unwrap();
-                let mut b = [0u8; 24];
-                b[0..4].copy_from_slice(&t.motor_speed.to_be_bytes());
-                b[4..8].copy_from_slice(&t.motor_current.to_be_bytes());
-                b[8..12].copy_from_slice(&t.battery_voltage.to_be_bytes());
-                b[12..16].copy_from_slice(&t.battery_current.to_be_bytes());
-                b[16..20].copy_from_slice(&t.commanded_value.to_be_bytes());
-                b[20..24].copy_from_slice(&t.mosfet_temp.to_be_bytes());
-                T::new(id, &b)
+                let mut b = Cursor::new([0u8; 24]);
+                let _ = t.write_be(&mut b);
+                let bytes = b.into_inner();
+                T::new(id, &bytes)
             }
             Self::MotorCmd(m) => {
                 let id = ExtendedId::new(0x00ec0191).unwrap();
@@ -83,21 +86,14 @@ impl<T: Frame> From<T> for Message {
             // ctrl_id
             0x00ec0191 => {
                 let data: &[u8] = frame.data();
-                Self::MotorCmd(MotorCmd {
-                    cmd_value: u16::from_be_bytes([data[0], data[1]]),
-                })
+                let mut bytes = Cursor::new(data);
+                Self::MotorCmd(MotorCmd::read_be(&mut bytes).unwrap())
             }
             //telem_id
             0x1feeab01 => {
                 let data: &[u8] = frame.data();
-                Self::Telemetry(Telemetry {
-                    motor_speed: f32::from_be_bytes(data[0..4].try_into().unwrap()),
-                    motor_current: f32::from_be_bytes(data[4..8].try_into().unwrap()),
-                    battery_voltage: f32::from_be_bytes(data[8..12].try_into().unwrap()),
-                    battery_current: f32::from_be_bytes(data[12..16].try_into().unwrap()),
-                    commanded_value: f32::from_be_bytes(data[16..20].try_into().unwrap()),
-                    mosfet_temp: f32::from_be_bytes(data[20..24].try_into().unwrap()),
-                })
+                let mut bytes = Cursor::new(data);
+                Self::Telemetry(Telemetry::read_be(&mut bytes).unwrap())
             }
             _ => Self::Unsupported,
         }
