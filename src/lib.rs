@@ -14,6 +14,8 @@ pub struct Telemetry {
     pub battery_current: f32,
     pub commanded_value: f32,
     pub mosfet_temp: f32,
+    pub controller_state: u8,
+    pub fault_code: u8,
 }
 
 #[binrw]
@@ -43,6 +45,8 @@ impl Telemetry {
         battery_current: f32,
         commanded_value: f32,
         mosfet_temp: f32,
+        controller_state: u8,
+        fault_code: u8,
     ) -> Self {
         Self {
             motor_speed,
@@ -51,6 +55,8 @@ impl Telemetry {
             battery_current,
             commanded_value,
             mosfet_temp,
+            controller_state,
+            fault_code,
         }
     }
 }
@@ -60,7 +66,7 @@ impl Message {
         match self {
             Self::Telemetry(t) => {
                 let id = ExtendedId::new(0x1feeab01).unwrap();
-                let mut b = Cursor::new([0u8; 24]);
+                let mut b = Cursor::new([0u8; 26]);
                 let _ = t.write_be(&mut b);
                 let bytes = b.into_inner();
                 T::new(id, &bytes)
