@@ -38,7 +38,7 @@ fn main() -> anyhow::Result<()> {
 
         std::thread::sleep(sleep_time);
 
-        let telem = Telemetry::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7, 8);
+        let telem = Telemetry::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
         let tfd = Message::Telemetry(telem).framify::<CanFdFrame>().unwrap();
         write_sock.write_frame(&tfd).context("Transmitting frame")?;
 
